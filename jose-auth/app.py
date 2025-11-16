@@ -17,6 +17,12 @@ SESSIONS = {}
 RESET_CODES = {}
 
 def create_session(username):
+    """
+    Desc: Create a new session for a logged in user.
+    Input: string - username
+    Output: Stores session in SESSIONS
+    Return: string - session_id
+    """
 
     # Create session id
     session_id = str(random.randint(LO_RAN_NUM, HI_RAND_NUM))
@@ -27,11 +33,24 @@ def create_session(username):
     return session_id
 
 def validate_session(session_id):
+    """
+    Desc: Check if a session ID is valid.
+    Input: string - session_id
+    Output: None
+    Return: string - username if valid, None if invalid
+    """
+
     if session_id and session_id in SESSIONS:
         return SESSIONS[session_id]
     return None
 
 def process_request(data):
+    """
+    Desc: Route incoming requests to the correct function based on action.
+    Input: dict - data containing action and request parameters
+    Output: None
+    Return: dict - response from the appropriate function
+    """
 
     user_action = data.get("action")
 
@@ -52,7 +71,13 @@ def process_request(data):
     
 
 def success_response(message, **extra_fields):
-    
+    """
+    Desc: Create a standard success response dictionary.
+    Input: string - message, optional key-value pairs
+    Output: None
+    Return: dict - response with status "ok" and message
+    """
+
     response = {
         "status": "ok",
         "message": message
@@ -61,7 +86,13 @@ def success_response(message, **extra_fields):
     return response
 
 def error_response(message, **extra_fields):
-    
+    """
+    Desc: Create a standard error response dictionary.
+    Input: string - message, optional key-value pairs
+    Output: None
+    Return: dict - response with status "error" and message
+    """
+
     response = {
         "status": "error",
         "message": message
@@ -70,6 +101,12 @@ def error_response(message, **extra_fields):
     return response
 
 def login_request(data):
+    """
+    Desc: Check username and password, create session if valid.
+    Input: dict - data containing username and password
+    Output: Creates session in SESSIONS if successful
+    Return: dict - success response with session_id or error response
+    """
 
     username = str(data.get("username"))
     password = str(data.get("password"))
@@ -103,6 +140,12 @@ def login_request(data):
         )
 
 def logout_request(data):
+    """
+    Desc: End user session and remove session data.
+    Input: dict - data containing session_id
+    Output: Removes session from SESSIONS if valid
+    Return: dict - success or error response
+    """
 
     session_id = data.get("session_id")
 
@@ -120,7 +163,13 @@ def logout_request(data):
         return error_response("Invalid or expired session_id")
     
 def reset_code_request(data):
-    
+    """
+    Desc: Generate a reset code for password recovery.
+    Input: dict - data containing username
+    Output: Stores reset code in RESET_CODES
+    Return: dict - success response with reset_code or error response
+    """   
+
     username = str(data.get("username", ""))
 
     # Check if username is missing
@@ -145,6 +194,12 @@ def reset_code_request(data):
     )
 
 def reset_password(data):
+    """
+    Desc: Update user password with a valid reset code.
+    Input: dict - data containing username, reset_code, and new_password
+    Output: Updates password in USERS and users.json, removes reset code from RESET_CODES
+    Return: dict - success or error response
+    """
 
     username = str(data.get("username", ""))
     reset_code = str(data.get("reset_code", ""))
@@ -176,6 +231,12 @@ def reset_password(data):
     
 
 def main():
+    """
+    Desc: Start the ZeroMQ server and listen for authentication requests.
+    Input: None
+    Output: Prints server status, processes incoming requests
+    Return: None
+    """
 
     # Setup ZeroMQ
     context = zmq.Context()
