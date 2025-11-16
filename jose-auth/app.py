@@ -1,16 +1,20 @@
 import zmq
 import json
+import random
 
 # Load users from users.json into a Python dictionary
 with open("users.json") as f:
     USERS = json.load(f)
 
-def login_data(data):
+# Store active session
+SESSIONS = {}
 
-    username = data.get("username")
-    password = data.get("password")
+def login_request(data):
 
-    # Check missing fields
+    username = str(data.get("username"))
+    password = str(data.get("password"))
+
+    # Check if missing fields
     if not username or not password:
         return {
             "status": "error",
@@ -19,12 +23,16 @@ def login_data(data):
             "message": "Missing username or password"
         }
     
-    # Check if the username exists and the password matches users.json
+    # Check if username exists and the password matches users.json
     if username in USERS and USERS[username] == password:
+
+        session_id = create_session(username)
+
         return {
             "status": "ok",
             "username": username,
             "authenticated": True,
+            "session_id": session_id,
             "message": "Login successful"
         }
     
@@ -35,11 +43,58 @@ def login_data(data):
             "username": username,
             "authenticated": False,
             "message": "Invalid username or password"
-        }    
+        }
+
+def create_session(username):
+
+    # Create session id
+    session_id = str(random.randint(100000, 999999))
+
+    # Store active user in current session list
+    SESSIONS[session_id] = username
+
+    return session_id
+
+def logout_request(data):
+
+    session_id = data.get("session_id")
+
+    # If no session_id
+    if not session_id:
+        return {
+            "status": "error",
+            "message": "Missing session_id"
+        }
+
+    # Check if the session exists
+    if session_id in SESSIONS:
+        # Remove the active session
+        del SESSIONS[session_id]
+
+        return {
+            "status": "ok",
+            "message": "Logout successful"
+        }
+    else:
+        return {
+            "status": "error",
+            "message": "Invalid or expired session_id"
+        }
     
+def process_request(data):
+
+    user_action = data.get("action")
+
+    if user_action == "logout":
+        return logout_request(data)
+    
+    # call login function if not logout
+    return login_request(data)
+
+
 def main():
 
-    # Step up ZeroMQ
+    # Setup ZeroMQ
     context = zmq.Context()
 
     # REP socket
@@ -53,7 +108,6 @@ def main():
     while True:
 
         # Message from the client, recieves message from the client
-        # This will be blank since we will wait until the message arrives
         message = socket.recv_string()
         
         print("Server Received: ", message)
@@ -66,11 +120,10 @@ def main():
             socket.send_string("Invalid JSON")
             continue
 
-        # Pull username and password
-        reply_data = login_data(data)
+        # Get user action
+        reply_data = process_request(data)
 
         # Convert to JSON string
-
         reply_json = json.dumps(reply_data)
 
         # Send reply back to the client
