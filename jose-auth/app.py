@@ -26,6 +26,11 @@ def create_session(username):
 
     return session_id
 
+def validate_session(session_id):
+    if session_id and session_id in SESSIONS:
+        return SESSIONS[session_id]
+    return None
+
 def process_request(data):
 
     user_action = data.get("action")
@@ -105,12 +110,12 @@ def logout_request(data):
     if not session_id:
         return error_response("Missing session_id")
 
-    # Check if the session exists
-    if session_id in SESSIONS:
-        # Remove the active session
+    username = validate_session(session_id)
+    
+    # If valid session
+    if username:
         del SESSIONS[session_id]
         return success_response("Logout successful")
-    
     else:
         return error_response("Invalid or expired session_id")
     
@@ -148,6 +153,10 @@ def reset_password(data):
     # Check missing fields
     if not username or not reset_code or not new_password:
         return error_response("Missing username, reset_code, or new_password")
+
+    # Check if username has reset code
+    if username not in RESET_CODES:
+        return error_response("No reset code found for this user")
     
     # Check if reset code matches
     if RESET_CODES[username] != reset_code:
