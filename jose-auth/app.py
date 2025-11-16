@@ -33,8 +33,18 @@ def process_request(data):
     if user_action == "logout":
         return logout_request(data)
     
+    # Reset code if user request new password
+    elif user_action == "reset_request":
+        return reset_code_request(data)
+    
+    # If reset code matches, reset password
+    elif user_action == "reset_password":
+        return reset_password(data)
+    
     # call login function if not logout
     return login_request(data)
+
+    
 
 def success_response(message, **extra_fields):
     
@@ -104,7 +114,7 @@ def logout_request(data):
     else:
         return error_response("Invalid or expired session_id")
     
-def reset_request(data):
+def reset_code_request(data):
     
     username = str(data.get("username", ""))
 
@@ -129,6 +139,32 @@ def reset_request(data):
         reset_code=reset_code
     )
 
+def reset_password(data):
+
+    username = str(data.get("username", ""))
+    reset_code = str(data.get("reset_code", ""))
+    new_password = str(data.get("new_password", ""))
+
+    # Check missing fields
+    if not username or not reset_code or not new_password:
+        return error_response("Missing username, reset_code, or new_password")
+    
+    # Check if reset code matches
+    if RESET_CODES[username] != reset_code:
+        return error_response("Invalid reset code")
+    
+    # Update password in USERS
+    USERS[username] = new_password
+
+    # Save updated USERS to users.json
+    with open("users.json", "w") as f:
+        json.dump(USERS, f, indent=4)
+
+    # Remove the reset code
+    del RESET_CODES[username]
+
+    return success_response("Password has been reset successfully", username=username)
+    
 
 def main():
 

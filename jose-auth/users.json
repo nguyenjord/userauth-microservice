@@ -1,5 +1,4 @@
 {
-  "jose": "password123",
-  "pablo": "abc123",
-  "paige": "password123"
+    "jose": "password123",
+    "testuser": "abc123"
 }
