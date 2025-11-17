@@ -206,5 +206,11 @@ print("Reply:", reply)
 
 ```
 
+## UML Sequence Diagram
+
+The following diagram illustrates how clients request and receive data from the authentication microservice:
+
+![Authentication Service UML Sequence Diagram](./auth_service_uml.png)
+
 ## License
 This project is for academic use.
