@@ -65,11 +65,14 @@ def process_request(data):
     elif user_action == "reset_password":
         return reset_password(data)
     
+    # Create new user, add password to json file
+    elif user_action == "register":
+        return create_user(data)
+    
     # call login function if not logout
     return login_request(data)
 
     
-
 def success_response(message, **extra_fields):
     """
     Desc: Create a standard success response dictionary.
@@ -228,7 +231,32 @@ def reset_password(data):
     del RESET_CODES[username]
 
     return success_response("Password has been reset successfully", username=username)
-    
+
+def create_user(data):
+    """
+    Desc: Register a new user with username and password.
+    Input: dict - data containing username and password
+    Output: Adds user to USERS and saves to users.json
+    Return: dict - success response with username or error response
+    """
+
+    username = str(data.get("username", "")).strip()
+    password = str(data.get("password", "")).strip()
+
+    # Check missing fields
+    if not username or not password:
+        return error_response("Missing username, or password for registration")
+
+    # Username already exists
+    if username in USERS:
+        return error_response("Username already exists")
+
+    # Add user to USERS json and save
+    USERS[username] = password
+    with open("users.json", "w") as f:
+        json.dump(USERS, f, indent=4)   
+
+    return success_response("User registered successfully", username=username)
 
 def main():
     """

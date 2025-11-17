@@ -91,8 +91,8 @@ Fail Response:
 
 Generates a temporary reset code for a valid username.
 
-```json
 Request:
+```json
 {
   "action": "reset_request",
   "username": "test"
@@ -131,6 +131,36 @@ Success Response:
   "username": "test"
 }
 ```
+
+5. Register New User
+Allows a client to create a new user and password. This is recorded within users.json.
+
+Request:
+```json
+{
+  "action": "register",
+  "username": "newuser",
+  "password": "newpass123"
+}
+```
+
+Success Response:
+```json
+{
+  "status": "ok",
+  "message": "User registered successfully",
+  "username": "newuser"
+}
+```
+
+Fail Response:
+```json
+{
+  "status": "error",
+  "message": "Username already exists"
+}
+```
+
 ## Data Storage
 
 user.json
@@ -151,11 +181,9 @@ Microservice Run Time Storage
 These are created and deleted when service starts/ends
 
 ## Notes
-- You do not need your own users.json file.
-- Use existing usernames, or ask the microservice owner to add one.
+- The "register" action updates users.json automatically, so the service owner does not need to modify this file manually.
 - Always send requests as valid JSON strings over ZeroMQ.
 - The service replies only after receiving a message (REQ/REP behavior).
-- Do not store any passwords in your own microservice let this service handle all auth.
 
 ## Python Client Example
 
