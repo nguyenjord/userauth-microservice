@@ -34,12 +34,15 @@ Below are the valid JSON messages a user can send to this microservice.
 ### 1.Login
 
 Request:
+```json
 {
   "username": "test",
   "password": "password123"
 }
+```
 
 Success Response:
+```json
 {
   "status": "ok",
   "message": "Login successful",
@@ -47,82 +50,99 @@ Success Response:
   "authenticated": true,
   "session_id": "123456"
 }
+```
 
 Fail Response:
+```json
 {
   "status": "error",
   "message": "Invalid username or password",
   "authenticated": false
 }
+```
 
 ### 2.Logout
 
 Request:
+```json
 {
   "action": "logout",
   "session_id": "123456"
 }
+```
 
 Success Response:
+```json
 {
   "status": "ok",
   "message": "Logout successful"
 }
+```
 
 Fail Response:
+```json
 {
   "status": "error",
   "message": "Invalid or expired session_id"
 }
-
+```
 
 ### 3.Request Password Reset
 
 Generates a temporary reset code for a valid username.
 
+```json
 Request:
 {
   "action": "reset_request",
   "username": "test"
 }
+```
 
 Success Response:
+```json
 {
   "status": "ok",
   "message": "Reset code generated",
   "username": "test",
   "reset_code": "123456"
 }
+```
 
 ### 4. Reset Password
 
 Uses a valid reset code to update the user’s password.
 
 Request:
+```json
 {
   "action": "reset_password",
   "username": "test",
   "reset_code": "123456",
   "new_password": "newpass123"
 }
+```
 
 Success Response:
+```json
 {
   "status": "ok",
   "message": "Password has been reset successfully",
   "username": "test"
 }
-
+```
 ## Data Storage
 
 user.json
 
 This file stores persistent username/password:
+```json
 {
   "test1": "abc123",
   "test2": "abc123",
   "test3": "password123"
 }
+```
 
 Microservice Run Time Storage
 - SESSIONS: active session IDs
@@ -139,6 +159,7 @@ These are created and deleted when service starts/ends
 
 ## Python Client Example
 
+```python
 import zmq
 import json
 
@@ -155,6 +176,7 @@ socket.send_string(json.dumps(request))
 reply = socket.recv_string()
 print("Reply:", reply)
 
+```
 
 ## License
 This project is for academic use.
