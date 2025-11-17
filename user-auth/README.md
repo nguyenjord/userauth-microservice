@@ -132,7 +132,7 @@ Success Response:
 }
 ```
 
-5. Register New User
+### 5. Register New User
 Allows a client to create a new user and password. This is recorded within users.json.
 
 Request:
