@@ -111,8 +111,8 @@ def login_request(data):
     Return: dict - success response with session_id or error response
     """
 
-    username = str(data.get("username"))
-    password = str(data.get("password"))
+    username = str(data.get("username", "")).strip()
+    password = str(data.get("password", "")).strip()
 
     # Check if missing fields
     if not username or not password:
@@ -173,7 +173,7 @@ def reset_code_request(data):
     Return: dict - success response with reset_code or error response
     """   
 
-    username = str(data.get("username", ""))
+    username = str(data.get("username", "")).strip()
 
     # Check if username is missing
     if not username:
@@ -204,9 +204,9 @@ def reset_password(data):
     Return: dict - success or error response
     """
 
-    username = str(data.get("username", ""))
-    reset_code = str(data.get("reset_code", ""))
-    new_password = str(data.get("new_password", ""))
+    username = str(data.get("username", "")).strip()
+    reset_code = str(data.get("reset_code", "")).strip()
+    new_password = str(data.get("new_password", "")).strip()
 
     # Check missing fields
     if not username or not reset_code or not new_password:
@@ -289,7 +289,7 @@ def main():
         except json.JSONDecodeError:
 
             # Check if valid JSON
-            socket.send_string("Invalid JSON")
+            socket.send_string(json.dumps(error_response("Invalid JSON")))
             continue
 
         # Get user action
