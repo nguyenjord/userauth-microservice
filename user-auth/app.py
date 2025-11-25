@@ -289,7 +289,7 @@ def main():
         except json.JSONDecodeError:
 
             # Check if valid JSON
-            socket.send_string("Invalid JSON")
+            socket.send_string(json.dumps(error_response("Invalid JSON")))
             continue
 
         # Get user action
