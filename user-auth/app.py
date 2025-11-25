@@ -46,31 +46,15 @@ def validate_session(session_id):
 
 def process_request(data):
     """
-    Desc: Route incoming requests to the correct function based on action.
+    Desc: Route incoming requests to the correct function based on action (with action map).
     Input: dict - data containing action and request parameters
     Output: None
     Return: dict - response from the appropriate function
     """
 
-    user_action = data.get("action")
-
-    if user_action == "logout":
-        return logout_request(data)
-    
-    # Reset code if user request new password
-    elif user_action == "reset_request":
-        return reset_code_request(data)
-    
-    # If reset code matches, reset password
-    elif user_action == "reset_password":
-        return reset_password(data)
-    
-    # Create new user, add password to json file
-    elif user_action == "register":
-        return create_user(data)
-    
-    # call login function if not logout
-    return login_request(data)
+    action = data.get("action", "").strip()
+    handler = ACTION_MAP.get(action, login_request)  # Get action from action map
+    return handler(data) 
 
     
 def success_response(message, **extra_fields):
@@ -257,6 +241,14 @@ def create_user(data):
         json.dump(USERS, f, indent=4)   
 
     return success_response("User registered successfully", username=username)
+
+ACTION_MAP = {
+    "logout": logout_request,
+    "reset_request": reset_code_request, # Reset code if user request new password
+    "reset_password": reset_password,  # If reset code matches, reset password
+    "register": create_user, # Create new user, add password to json file
+    "login": login_request # call login function if not logout
+}
 
 def main():
     """
